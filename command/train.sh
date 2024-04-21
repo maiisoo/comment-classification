@@ -1,0 +1,1 @@
+./spark-submit --master spark://10.10.28.20:7077 model.py hdfs://master1:9000/train_dir hdfs://master1:9000/user/dis/model_dir

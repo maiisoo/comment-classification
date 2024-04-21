@@ -1,2 +1,0 @@
-tensorflowonspark==2.2.5
-
