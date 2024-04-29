@@ -10,4 +10,4 @@ consumer = KafkaConsumer(
 
 print("starting the consumer")
 for msg in consumer:
-    print("Click = {}".format(json.loads(msg.value)))
+    print(format(json.loads(msg.value)))
