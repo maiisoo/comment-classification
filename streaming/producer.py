@@ -35,6 +35,6 @@ def random_info():
 
 while 1 == 1:
     mess = random_info()
-    producer.send("test", mess)
+    producer.send("test1", mess)
     print("Sent: ", mess)
     time.sleep(1)
