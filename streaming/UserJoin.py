@@ -13,7 +13,6 @@ def createSchema(columns):
 
 # Tạo SparkSession
 spark = SparkSession.builder \
-    .master("") \
     .appName("Join and Send to Kafka") \
     .getOrCreate()
 
@@ -41,11 +40,11 @@ commentDF = commentDF.withWatermark("timestamp", "10 minutes")
 
 # Đọc dữ liệu user từ tệp CSV
 userSchema = createSchema(columns=["User_id","Name","Email","Gender","Birthday","Location","Phone_number","Registration_date"])
-userDF = spark.read.csv("../dataset/users.csv", header=True, schema=userSchema)
+userDF = spark.read.csv("hdfs://master1:9000/user/dis/data_prj/users.csv", header=True, schema=userSchema)
 
 # Thực hiện join giữa dữ liệu user và dữ liệu comment
 joinDF = userDF.join(commentDF, userDF["User_id"] == commentDF["user_id"], "inner")
-joinDF = joinDF.drop(commentDF["user_id"])
+joinDF = joinDF.drop(joinDF["user_id"])
 
 # Ghi kết quả vào Kafka topic "test2"
 # query = joinDF \

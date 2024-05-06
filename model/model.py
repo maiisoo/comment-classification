@@ -53,5 +53,6 @@ if __name__ == "__main__":
         .appName("classifier") \
         .getOrCreate()
 
-    df = spark.read.csv(train_data_dir, inferSchema=True, header=True)
+    #df = spark.read.csv(train_data_dir, inferSchema=True, header=True)
+    df = spark.read.json(train_data_dir)
     train(df, model_dir)

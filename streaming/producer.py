@@ -14,7 +14,7 @@ producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
                          value_serializer=json_serializer)
 
 # user_id,platform, timestamp, text, post_id,topic, label
-df = pandas.read_csv('../dataset/users.csv')
+df = pandas.read_csv('/home/dis/group1_prj/dataset/users.csv')
 click_info = []
 topics = ['politics', 'sports']
 platforms = ['instagram', 'facebook', 'twitter', 'linkedin']

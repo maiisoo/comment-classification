@@ -3,7 +3,7 @@ import json
 from kafka import KafkaConsumer
 
 consumer = KafkaConsumer(
-    "test",
+    "test1",
     bootstrap_servers='localhost:9092',
     auto_offset_reset='earliest',
     enable_auto_commit=True)
