@@ -10,8 +10,6 @@ def json_serializer(data):
     return json.dumps(data).encode("utf-8")
 
 
-producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
-                         value_serializer=json_serializer)
 
 # user_id,platform, timestamp, text, post_id,topic, label
 df = pandas.read_csv('/home/dis/group1_prj/dataset/users.csv')
@@ -22,6 +20,8 @@ texts = ['a love b', 'a love c', 'a love d', 'a love e', 'a love f', 'a love g',
          'a love k', 'a love l']
 
 
+producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
+                         value_serializer=json_serializer)
 def random_info():
     user_id = random.choice(df['User_id'].tolist())
     platform = platforms[random.randint(0, 3)]
@@ -35,6 +35,6 @@ def random_info():
 
 while 1 == 1:
     mess = random_info()
-    producer.send("test1", mess)
+    producer.send("test", mess)
     print("Sent: ", mess)
     time.sleep(1)
