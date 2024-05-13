@@ -16,9 +16,18 @@ df = pandas.read_csv('/home/dis/group1_prj/dataset/users.csv')
 click_info = []
 topics = ['politics', 'sports']
 platforms = ['instagram', 'facebook', 'twitter', 'linkedin']
-texts = ['a love b', 'a love c', 'a love d', 'a love e', 'a love f', 'a love g', 'a love h', 'a love i', 'a love j',
-         'a love k', 'a love l']
-
+texts = ['He slammed the door shut, furious at being ignored once again.',
+        'As the thunder roared outside, she huddled under the covers, trembling with fear.',
+        'The children laughed and played in the warm sunshine, their joy infectious to everyone around.',
+        'With a tender kiss on her forehead, he whispered, "I love you more than words can express."',
+        'Tears welled up in her eyes as she read the farewell letter, feeling the weight of loneliness settle in.'
+        'Opening the box, she gasped in surprise at finding a beautiful bouquet of flowers inside.',
+        'He clenched his fists, seething with anger at the unfairness of the situation.',
+        'Walking alone in the dark alley, her heart raced with fear at every sound.',
+        'The crowd erupted into cheers as their team scored the winning goal, their joy uncontainable.',
+        'With a warm embrace, she held her newborn baby close, feeling an overwhelming rush of love.',
+        'Sitting by the window, she watched the rain fall, feeling the heaviness of sadness in her heart.',
+        'Turning the corner, he stumbled upon a surprise party thrown by his friends, speechless with astonishment.']
 
 producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
                          value_serializer=json_serializer)
