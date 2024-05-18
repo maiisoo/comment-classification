@@ -5,3 +5,4 @@ tensorflow
 pyspark
 kafka
 kafka-python
+cassandra-driver
