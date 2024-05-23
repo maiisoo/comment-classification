@@ -14,7 +14,7 @@ def json_serializer(data):
 # user_id,platform, timestamp, text, post_id,topic, label
 df = pandas.read_csv('/home/dis/group1_prj/dataset/users.csv')
 click_info = []
-topics = ['politics', 'sports']
+topics = ['politics', 'sports', 'music', 'stars', 'education']
 platforms = ['instagram', 'facebook', 'twitter', 'linkedin']
 texts = ['He slammed the door shut, furious at being ignored once again.',
         'As the thunder roared outside, she huddled under the covers, trembling with fear.',

@@ -26,9 +26,9 @@ def prediction_to_label(prediction):
 # Khởi tạo SparkSession
 spark = SparkSession.builder \
     .appName("UserJoin") \
-    .config("spark.cassandra.connection.host", "localhost") \
-    .config("spark.cassandra.connection.port", "9042") \
     .getOrCreate()
+
+
 spark.sparkContext.setLogLevel("ERROR")
 
 # Đọc dữ liệu từ Kafka bằng cách sử dụng readStream
@@ -60,46 +60,55 @@ userDF = spark.read.csv("hdfs://master1:9000/user/dis/data_prj/users.csv", heade
 commentDF = commentDF.withWatermark("timestamp", "10 minutes")
 commentDF = commentDF.withColumnRenamed("user_id", "comment_user_id")
 
-loaded_model = PipelineModel.load("hdfs://master1:9000/user/dis/model")
-prediction_to_label_udf = udf(prediction_to_label, StringType())
-commentDF = loaded_model.transform(commentDF)
-commentDF = commentDF.withColumn("label", prediction_to_label_udf(commentDF["prediction"]))
-commentDF = commentDF.select("user_id", "platform", "text", "timestamp", "post_id", "topic", "label")
+#loaded_model = PipelineModel.load("hdfs://master1:9000/user/dis/model")
+#prediction_to_label_udf = udf(prediction_to_label, StringType())
+#commentDF = loaded_model.transform(commentDF)
+#commentDF = commentDF.withColumn("label", prediction_to_label_udf(commentDF["prediction"]))
+#commentDF = commentDF.select("user_id", "platform", "text", "timestamp", "post_id", "topic", "label")
 
 # Thực hiện join giữa dữ liệu user và dữ liệu comment
-# joinDF = userDF.join(commentDF, userDF["User_id"] == commentDF["user_id"], "inner")
+#joinDF = userDF.join(commentDF, userDF["User_id"] == commentDF["user_id"], "inner")
 joinDF = userDF.join(commentDF, userDF["User_id"] == commentDF["comment_user_id"], "inner")
 joinDF = joinDF.drop(joinDF["user_id"])
-# In kết quả ra console
-query_console = joinDF \
-    .writeStream \
-    .outputMode("append") \
-    .format("console") \
-    .start()
+# # In kết quả ra console
+# query_console = joinDF \
+#     .writeStream \
+#     .outputMode("append") \
+#     .format("console") \
+#     .start()
 
-# Chờ cho đến khi query kết thúc
-query_console.awaitTermination()
+# # Chờ cho đến khi query kết thúc
+# query_console.awaitTermination()
 
+jdbc_url = "jdbc:postgresql://localhost:5432/group_1"
+
+connection_properties = {
+    "user": "postgres",
+    "password": "postgres",
+    "driver": "org.postgresql.Driver"
+}
 
 def write_to_table(df, epoc_id):
     try:
         df.write \
-            .format("org.apache.spark.sql.cassandra") \
-            .options(table="comments", keyspace="group_1") \
+            .format("jdbc") \
+            .option("url", jdbc_url) \
+            .option("dbtable", "comments") \
+            .options(**connection_properties) \
             .mode("append") \
             .save()
 
-        print("Write real time comment to Cassandra table successfully!")
+        print("Write real time comment to PSQL table successfully!")
     except Exception as e:
-        print(f"Error while writing to Cassandra:{e}")
+        print(f"Error while writing to PSQL:{e}")
 
 
 # Ghi kết quả vào cassadra DB
 query_db = joinDF.writeStream \
-    .trigger(processingTime="10 seconds") \
-    .outputMode("append") \
-    .foreachBatch(write_to_table) \
-    .start()
+   .trigger(processingTime="10 seconds") \
+   .outputMode("append") \
+   .foreachBatch(write_to_table) \
+   .start()
 
 query_db.awaitTermination()
 
