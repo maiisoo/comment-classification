@@ -37,7 +37,7 @@ def random_info():
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     post_id = str(random.randint(1, 9999999999))
     text = texts[random.randint(0, 10)]
-    topic = topics[random.randint(0, 1)]
+    topic = topics[random.randint(0, 4)]
     return {'user_id': user_id, 'platform': platform, 'timestamp': timestamp,
             'text': text, 'post_id': post_id, 'topic': topic}
 

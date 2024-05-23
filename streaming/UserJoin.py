@@ -1,6 +1,6 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, from_json, udf
-from pyspark.sql.types import StringType, StructField, StructType, TimestampType
+from pyspark.sql.types import StringType, StructField, StructType, TimestampType, DateType
 from pyspark.ml import PipelineModel
 
 
@@ -56,6 +56,8 @@ commentDF = commentDF.select("user_id", "platform", "text", "timestamp", "post_i
 userSchema = createSchema(
     columns=["User_id", "Name", "Email", "Gender", "Birthday", "Location", "Phone_number", "Registration_date"])
 userDF = spark.read.csv("hdfs://master1:9000/user/dis/data_prj/users.csv", header=True, schema=userSchema)
+userDF = userDF.withColumn("Birthday", userDF["Birthday"].cast(DateType()))
+userDF = userDF.withColumn("Registration_date", userDF["Registration_date"].cast(DateType()))
 
 commentDF = commentDF.withWatermark("timestamp", "10 minutes")
 commentDF = commentDF.withColumnRenamed("user_id", "comment_user_id")
@@ -70,44 +72,68 @@ commentDF = commentDF.withColumnRenamed("user_id", "comment_user_id")
 #joinDF = userDF.join(commentDF, userDF["User_id"] == commentDF["user_id"], "inner")
 joinDF = userDF.join(commentDF, userDF["User_id"] == commentDF["comment_user_id"], "inner")
 joinDF = joinDF.drop(joinDF["user_id"])
-# # In kết quả ra console
-# query_console = joinDF \
+# In kết quả ra console
+#query_console = joinDF \
 #     .writeStream \
 #     .outputMode("append") \
 #     .format("console") \
 #     .start()
 
-# # Chờ cho đến khi query kết thúc
-# query_console.awaitTermination()
+# Chờ cho đến khi query kết thúc
+#query_console.awaitTermination()
 
-jdbc_url = "jdbc:postgresql://localhost:5432/group_1"
+jdbc_url = "jdbc:postgresql://128.199.202.92:30432/group_1"
 
 connection_properties = {
-    "user": "postgres",
-    "password": "postgres",
+    "user": "maxinh",
+    "password": "ma123456",
     "driver": "org.postgresql.Driver"
 }
 
+#def write_to_table(df, epoc_id):
+#    try:
+#        df.write \
+#            .format("jdbc") \
+#            .option("url", jdbc_url) \
+#            .option("dbtable", "group_1.comments") \
+#            .options(**connection_properties) \
+#            .mode("append") \
+#            .save()
+
+#        print("Write real time comment to PSQL table successfully!")
+#    except Exception as e:
+#        print(f"Error while writing to PSQL:{e}")
+
 def write_to_table(df, epoc_id):
     try:
-        df.write \
-            .format("jdbc") \
-            .option("url", jdbc_url) \
-            .option("dbtable", "comments") \
-            .options(**connection_properties) \
-            .mode("append") \
-            .save()
+        # Log the schema and row count before writing
+        print("Schema of DataFrame to be written:")
+        df.printSchema()
+        row_count = df.count()
+        print(f"Number of rows in DataFrame: {row_count}")
 
-        print("Write real time comment to PSQL table successfully!")
+        if row_count > 0:
+            df.write \
+                .format("jdbc") \
+                .option("url", jdbc_url) \
+                .option("dbtable", "group_1.comments") \
+                .options(**connection_properties) \
+                .mode("append") \
+                .save()
+
+            print("Write real time comment to PSQL table successfully!")
+        else:
+            print("DataFrame is empty. Skipping write.")
     except Exception as e:
-        print(f"Error while writing to PSQL:{e}")
+        print(f"Error while writing to PSQL: {e}")
 
 
-# Ghi kết quả vào cassadra DB
+# Ghi kết quả vào DB
 query_db = joinDF.writeStream \
-   .trigger(processingTime="10 seconds") \
+   .trigger(processingTime="5 seconds") \
    .outputMode("append") \
    .foreachBatch(write_to_table) \
+   .option("checkpointLocation", "hdfs://master1:9000/user/dis/checkpoint") \
    .start()
 
 query_db.awaitTermination()

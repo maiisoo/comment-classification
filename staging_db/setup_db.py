@@ -6,11 +6,11 @@ def connect():
     try:
         # read connection parameters
         params = {
-                "host": "localhost",
-                "port": "5432",
+                "host": "128.199.202.92",
+                "port": "30432",
                 "database": "group_1",
-                "user": "postgres",
-                "password": "postgres",
+                "user": "maxinh",
+                "password": "ma123456",
         }
 
         # connect to the PostgreSQL server
@@ -40,18 +40,20 @@ def create_tables():
     """ create tables in the PostgreSQL database"""
     commands = (
         """
-        CREATE TABLE comments (
+	DROP SCHEMA IF EXISTS group_1 CASCADE;
+	CREATE SCHEMA group_1;
+        CREATE TABLE group_1.comments (
             "Name" text,
             "Email" text,
             "Gender" text,
-            "Birthday" text,
+            "Birthday" date,
             "Location" text,
             "Phone_number" text,
-            "Registration_date" text,
+            "Registration_date" date,
             comment_user_id text,
             platform text,
             text text,
-            timestamp text,
+            timestamp timestamp,
             post_id text,
             topic text,
             label text
@@ -63,7 +65,7 @@ def create_tables():
     try:
         # read the connection parameters
         # connect to the PostgreSQL server
-        conn = psycopg2.connect("host=localhost port=5432 dbname=group_1 user=postgres password=postgres")
+        conn = psycopg2.connect("host=128.199.202.92 port=30432 dbname=group_1 user=maxinh password=ma123456")
         cur = conn.cursor()
         # create table one by one
         for command in commands:
