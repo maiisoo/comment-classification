@@ -6,11 +6,11 @@ def connect():
     try:
         # read connection parameters
         params = {
-                "host": "128.199.202.92",
-                "port": "30432",
+                "host": "",
+                "port": "",
                 "database": "group_1",
-                "user": "maxinh",
-                "password": "ma123456",
+                "user": "",
+                "password": "",
         }
 
         # connect to the PostgreSQL server
@@ -65,7 +65,7 @@ def create_tables():
     try:
         # read the connection parameters
         # connect to the PostgreSQL server
-        conn = psycopg2.connect("host=128.199.202.92 port=30432 dbname=group_1 user=maxinh password=ma123456")
+        conn = psycopg2.connect("")
         cur = conn.cursor()
         # create table one by one
         for command in commands:
